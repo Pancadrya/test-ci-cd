@@ -1,0 +1,33 @@
+name: DevSecOps CI Pipeline
+
+on:
+  pull_request: # Berjalan saat ada PR ke main
+    branches: ["main"]
+  push: # Berjalan saat kode di-merge ke main
+    branches: ["main"]
+
+jobs:
+  security-and-lint:
+    name: Source Code Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Penting untuk Gitleaks agar bisa membaca history commit
+
+      - name: Secret Scanning (Gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false
+
+      - name: Filesystem Scan (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "table"
+          exit-code: "1" # Gagalkan pipeline jika ada celah HIGH/CRITICAL
+          ignore-unfixed: true
+          severity: "CRITICAL,HIGH"
