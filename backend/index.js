@@ -1,6 +1,5 @@
 const http = require("http");
 
-// Rahasia diambil dari environment, bukan ditulis di kode
 const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
@@ -10,4 +9,9 @@ const server = http.createServer((req, res) => {
   res.end(JSON.stringify({ message: "Hello from Secure Backend!" }));
 });
 
-server.listen(3000, () => console.log("Backend berjalan di port 3000"));
+// Hanya jalankan listen jika dieksekusi langsung (bukan saat di-import oleh Jest)
+if (require.main === module) {
+  server.listen(3000, () => console.log("Backend berjalan di port 3000"));
+}
+
+module.exports = server;

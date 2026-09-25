@@ -31,3 +31,24 @@ jobs:
           exit-code: "1" # Gagalkan pipeline jika ada celah HIGH/CRITICAL
           ignore-unfixed: true
           severity: "CRITICAL,HIGH"
+
+  unit-test:
+    name: Unit Test & Coverage
+    needs: security-and-lint # Hanya berjalan jika scan keamanan sukses
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Dependencies
+        working-directory: ./backend
+        run: npm install
+
+      - name: Run Jest with Coverage
+        working-directory: ./backend
+        run: npm test
