@@ -1,0 +1,5 @@
+#!/bin/sh
+echo "Menjalankan Security Scan (Gitleaks) sebelum commit..."
+
+# Matikan konversi path otomatis dari Git Bash
+MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd):/path" zricethezav/gitleaks:latest detect --source="/path" -v
