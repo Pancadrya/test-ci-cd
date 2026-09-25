@@ -1,12 +1,8 @@
 const http = require("http");
 
-// Dummy AWS Key dengan karakter acak
+// Rahasia diambil dari environment, bukan ditulis di kode
 const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
-
-// Dummy GitHub Personal Access Token (Classic)
-const GITHUB_TOKEN = "ghp_1a2b3c4d5e6f7g8h9i0j1a2b3c4d5e6f7g8h";
-
-// Dummy AWS Secret Key dengan entropy tinggi (40 karakter)
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
 
 const server = http.createServer((req, res) => {

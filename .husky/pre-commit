@@ -1,5 +1,5 @@
 #!/bin/sh
-echo "Menjalankan Security Scan (Gitleaks) sebelum commit..."
+echo "Menjalankan Security Scan (Gitleaks) pada file yang di-stage..."
 
-# Matikan konversi path otomatis dari Git Bash
-MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd):/path" zricethezav/gitleaks:latest detect --source="/path" -v
+# Menggunakan mode protect --staged agar hanya memindai kode yang akan di-commit saat ini
+MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd):/path" zricethezav/gitleaks:latest protect --source="/path" --staged -v
