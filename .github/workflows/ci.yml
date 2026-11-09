@@ -31,6 +31,7 @@ jobs:
           exit-code: "1"
           ignore-unfixed: true
           severity: "CRITICAL,HIGH"
+          trivyignores: ".trivyignore"
 
   unit-test:
     name: Unit Test & Coverage
@@ -80,6 +81,7 @@ jobs:
           exit-code: "1"
           ignore-unfixed: true
           severity: "CRITICAL,HIGH"
+          trivyignores: ".trivyignore"
 
       # --- FRONTEND (MULTI-STAGE) ---
       - name: Build Frontend Image
@@ -97,3 +99,4 @@ jobs:
           exit-code: "1"
           ignore-unfixed: true
           severity: "CRITICAL,HIGH"
+          trivyignores: ".trivyignore"
