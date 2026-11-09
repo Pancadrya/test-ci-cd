@@ -73,15 +73,9 @@ jobs:
           load: true
           tags: poc-backend:local
 
-      - name: Scan Backend Image (Trivy)
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: "poc-backend:local"
-          format: "table"
-          exit-code: "1"
-          ignore-unfixed: true
-          severity: "CRITICAL,HIGH"
-          trivyignores: ".trivyignore"
+      - name: Scan Backend Image (Trivy Docker CLI)
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "${{ github.workspace }}:/workspace" aquasec/trivy image --format table --exit-code 1 --ignore-unfixed --severity CRITICAL,HIGH --ignorefile /workspace/.trivyignore poc-backend:local
 
       # --- FRONTEND (MULTI-STAGE) ---
       - name: Build Frontend Image
@@ -91,12 +85,6 @@ jobs:
           load: true
           tags: poc-frontend:local
 
-      - name: Scan Frontend Image (Trivy)
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: "poc-frontend:local"
-          format: "table"
-          exit-code: "1"
-          ignore-unfixed: true
-          severity: "CRITICAL,HIGH"
-          trivyignores: ".trivyignore"
+      - name: Scan Frontend Image (Trivy Docker CLI)
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "${{ github.workspace }}:/workspace" aquasec/trivy image --format table --exit-code 1 --ignore-unfixed --severity CRITICAL,HIGH --ignorefile /workspace/.trivyignore poc-frontend:local
