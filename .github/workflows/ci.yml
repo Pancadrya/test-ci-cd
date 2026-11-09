@@ -1,10 +1,10 @@
 name: DevSecOps CI Pipeline
 
 on:
-  pull_request: # Berjalan saat ada PR ke main
-    branches: ["main"]
-  push: # Berjalan saat kode di-merge ke main
-    branches: ["main"]
+  pull_request:
+    branches: ["staging", "main"]
+  push:
+    branches: ["staging", "main"]
 
 jobs:
   security-and-lint:
@@ -28,13 +28,13 @@ jobs:
           scan-type: "fs"
           scan-ref: "."
           format: "table"
-          exit-code: "1" # Gagalkan pipeline jika ada celah HIGH/CRITICAL
+          exit-code: "1"
           ignore-unfixed: true
           severity: "CRITICAL,HIGH"
 
   unit-test:
     name: Unit Test & Coverage
-    needs: security-and-lint # Hanya berjalan jika scan keamanan sukses
+    needs: security-and-lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -55,7 +55,7 @@ jobs:
 
   build-and-scan-image:
     name: Build and Scan Docker Image
-    needs: unit-test # Job ini hanya berjalan JIKA unit test sukses
+    needs: unit-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -64,20 +64,36 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Build image, tapi JANGAN di-push. Simpan di lokal runner.
-      - name: Build local image
+      # --- BACKEND ---
+      - name: Build Backend Image
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           load: true
           tags: poc-backend:local
 
-      # Scan image yang baru saja di-build (Trivy mode image)
-      - name: Image Vulnerability Scan (Trivy)
+      - name: Scan Backend Image (Trivy)
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: "poc-backend:local"
           format: "table"
-          exit-code: "1" # Akan menggagalkan pipeline jika menemukan celah
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: "CRITICAL,HIGH"
+
+      # --- FRONTEND (MULTI-STAGE) ---
+      - name: Build Frontend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          load: true
+          tags: poc-frontend:local
+
+      - name: Scan Frontend Image (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "poc-frontend:local"
+          format: "table"
+          exit-code: "1"
           ignore-unfixed: true
           severity: "CRITICAL,HIGH"

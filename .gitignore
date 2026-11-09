@@ -1,1 +1,8 @@
-node_modules
+@"
+node_modules/
+coverage/
+.env
+dist/
+npm-debug.log
+.DS_Store
+"@ > .gitignore
