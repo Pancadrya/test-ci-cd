@@ -1,20 +1,21 @@
 # Stage 1: Builder
 FROM node:22-alpine3.19 AS builder
+# [PATCH] Ambil update keamanan OS terbaru untuk menambal CVE musl
+RUN apk update && apk upgrade --no-cache
 WORKDIR /app
 COPY package*.json ./
-# Hanya install dependensi production (tanpa Jest, Supertest, dll)
 RUN npm ci --omit=dev
 COPY . .
 
 # Stage 2: Production Runner
 FROM node:22-alpine3.19
+# [PATCH] Lakukan hal yang sama di production image
+RUN apk update && apk upgrade --no-cache
 WORKDIR /app
 
-# Ambil modul production dan source code dari builder
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app .
 
-# Keamanan: Gunakan user 'node' bawaan image (bukan root)
 USER node
 
 EXPOSE 3000
