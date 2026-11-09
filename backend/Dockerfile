@@ -7,7 +7,7 @@ RUN npm ci --omit=dev
 COPY . .
 
 # Stage 2: Production Runner
-FROM node:22-alpine3.19 AS builder
+FROM node:22-alpine3.19
 WORKDIR /app
 
 # Ambil modul production dan source code dari builder
