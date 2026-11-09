@@ -1,5 +1,5 @@
 # Stage 1: Builder
-FROM node:20-alpine AS builder
+FROM node:22-alpine3.19 AS builder
 WORKDIR /app
 COPY package*.json ./
 # Hanya install dependensi production (tanpa Jest, Supertest, dll)
@@ -7,7 +7,7 @@ RUN npm ci --omit=dev
 COPY . .
 
 # Stage 2: Production Runner
-FROM node:20-alpine
+FROM node:22-alpine3.19 AS builder
 WORKDIR /app
 
 # Ambil modul production dan source code dari builder
