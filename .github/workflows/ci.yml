@@ -88,3 +88,16 @@ jobs:
       - name: Scan Frontend Image (Trivy Docker CLI)
         run: |
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "${{ github.workspace }}:/workspace" aquasec/trivy image --format table --exit-code 1 --ignore-unfixed --severity CRITICAL,HIGH --ignorefile /workspace/.trivyignore poc-frontend:local
+
+  deploy:
+    name: Deploy to Local Staging
+    needs: build-and-scan-image # Kunci CD: Hanya berjalan jika Gitleaks, Jest, dan Trivy lolos (Succeeded)
+    runs-on: [self-hosted, poc-local]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy Application via Docker Compose
+        run: |
+          docker compose down
+          docker compose up -d --build
