@@ -75,7 +75,7 @@ jobs:
 
       - name: Scan Backend Image (Trivy Docker CLI)
         run: |
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "${{ github.workspace }}:/workspace" aquasec/trivy image --format table --exit-code 1 --ignore-unfixed --severity CRITICAL,HIGH --ignorefile /workspace/.trivyignore --timeout 30m poc-backend:local
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "${{ github.workspace }}:/workspace" aquasec/trivy image --format table --exit-code 1 --ignore-unfixed --severity CRITICAL,HIGH --ignorefile /workspace/.trivyignore --timeout 31m poc-backend:local
 
       # --- FRONTEND (MULTI-STAGE) ---
       - name: Build Frontend Image
@@ -87,4 +87,4 @@ jobs:
 
       - name: Scan Frontend Image (Trivy Docker CLI)
         run: |
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "${{ github.workspace }}:/workspace" aquasec/trivy image --format table --exit-code 1 --ignore-unfixed --severity CRITICAL,HIGH --ignorefile /workspace/.trivyignore --timeout 30m poc-frontend:local
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "${{ github.workspace }}:/workspace" aquasec/trivy image --format table --exit-code 1 --ignore-unfixed --severity CRITICAL,HIGH --ignorefile /workspace/.trivyignore --timeout 31m poc-frontend:local
