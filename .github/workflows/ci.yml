@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: ["staging", "main"]
   push:
-    branches: ["staging", "main"]
+    branches: ["staging", "main", "chore/linux-vps-runner"]
 
 jobs:
   security-and-lint:
@@ -57,7 +57,7 @@ jobs:
   build-and-scan-image:
     name: Build and Scan Docker Image
     needs: unit-test
-    runs-on: [self-hosted, poc-local]
+    runs-on: [self-hosted, lci-dev-server]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -73,10 +73,17 @@ jobs:
           load: true
           tags: poc-backend:local
 
-      - name: Scan Backend Image (Trivy Docker CLI)
-        continue-on-error: true
-        run: |
-          docker run --rm -v trivy-cache:/root/.cache/trivy -v /var/run/docker.sock:/var/run/docker.sock -v "${{ github.workspace }}:/workspace" aquasec/trivy image --format table --exit-code 1 --ignore-unfixed --severity CRITICAL,HIGH --ignorefile /workspace/.trivyignore --timeout 30m poc-backend:local
+      - name: Scan Backend Image
+        uses: aquasecurity/trivy-action@master
+        continue-on-error: true # Tetap dipertahankan untuk jaga-jaga koneksi VPS
+        with:
+          image-ref: "poc-backend:local"
+          format: "table"
+          exit-code: "1"
+          ignore-unfixed: true
+          vuln-type: "os,library"
+          severity: "CRITICAL,HIGH"
+          timeout: "30m"
 
       # --- FRONTEND (MULTI-STAGE) ---
       - name: Build Frontend Image
@@ -86,15 +93,22 @@ jobs:
           load: true
           tags: poc-frontend:local
 
-      - name: Scan Frontend Image (Trivy Docker CLI)
+      - name: Scan Frontend Image
+        uses: aquasecurity/trivy-action@master
         continue-on-error: true
-        run: |
-          docker run --rm -v trivy-cache:/root/.cache/trivy -v /var/run/docker.sock:/var/run/docker.sock -v "${{ github.workspace }}:/workspace" aquasec/trivy image --format table --exit-code 1 --ignore-unfixed --severity CRITICAL,HIGH --ignorefile /workspace/.trivyignore --timeout 30m poc-frontend:local
+        with:
+          image-ref: "poc-frontend:local"
+          format: "table"
+          exit-code: "1"
+          ignore-unfixed: true
+          vuln-type: "os,library"
+          severity: "CRITICAL,HIGH"
+          timeout: "30m"
 
   deploy:
     name: Deploy to Local Staging
     needs: build-and-scan-image # Kunci CD: Hanya berjalan jika Gitleaks, Jest, dan Trivy lolos (Succeeded)
-    runs-on: [self-hosted, poc-local]
+    runs-on: [self-hosted, lci-dev-server]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
