@@ -8,21 +8,28 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - poc_devsecops_data:/var/lib/postgresql/data
 
   backend:
     build: ./backend
     ports:
-      - "3000:3000"
+      - "3010:3000" # Aman: Menghindari bentrok dengan layanan LCI di port 3000
+    environment:
+      # SECURE: Inject kredensial ke dalam kontainer, backend tidak mencari di localhost
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
     depends_on:
       - database
 
   frontend:
     build: ./frontend
     ports:
-      - "8080:80"
+      - "8085:80" # Aman: Bisa diakses dari browser VPS tanpa menabrak Nginx port 80
     depends_on:
       - backend
 
 volumes:
-  pgdata:
+  poc_devsecops_data:
